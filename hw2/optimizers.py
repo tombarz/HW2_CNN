@@ -91,7 +91,14 @@ class MomentumSGD(Optimizer):
 
         # TODO: Add your own initializations as needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.v = []
+        for p, dp in self.params:
+            if dp is None:
+                continue
+
+            self.v.append(torch.zeros(p.shape))
+
+        self.current_param_num = 0
         # ========================
 
     def step(self):
@@ -103,7 +110,16 @@ class MomentumSGD(Optimizer):
             # update the parameters tensor based on the velocity. Don't forget
             # to include the regularization term.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            current_v = self.v[self.current_param_num]
+
+            dp.add_(self.reg * p)
+            current_v.mul_(self.momentum)
+            current_v.add_(-self.learn_rate*dp)
+            p.add_(current_v)
+
+            self.current_param_num += 1
+            if self.current_param_num == len(self.v):
+                self.current_param_num = 0
             # ========================
 
 
@@ -124,7 +140,14 @@ class RMSProp(Optimizer):
 
         # TODO: Add your own initializations as needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.r = []
+        for p, dp in self.params:
+            if dp is None:
+                continue
+
+            self.r.append(torch.zeros(p.shape))
+
+        self.current_param_num = 0
         # ========================
 
     def step(self):
@@ -137,5 +160,16 @@ class RMSProp(Optimizer):
             # average of it's previous gradients. Use it to update the
             # parameters tensor.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            current_r = self.r[self.current_param_num]
+
+            dp.add_(self.reg * p)
+            current_r.mul_(self.decay)
+            current_r.add_((1-self.decay)*(dp*dp))
+
+            dp_coef = self.learn_rate / (torch.sqrt(current_r + self.eps)) 
+            p.add_(-dp_coef*dp)
+
+            self.current_param_num += 1
+            if self.current_param_num == len(self.r):
+                self.current_param_num = 0
             # ========================
