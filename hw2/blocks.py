@@ -195,7 +195,7 @@ class Sigmoid(Block):
         # TODO: Implement the Sigmoid function. Save whatever you need into
         # grad_cache.
         # ====== YOUR CODE: ======
-        x_max = x - x.max() #for numerical stability
+        x_max = x.clamp(min=-10, max=10) #for numerical stability
         sigmoid_x = 1 / (1 + torch.exp(-x_max))
         self.grad_cache['sigmoid_x'] = sigmoid_x
         out = sigmoid_x
@@ -276,13 +276,9 @@ class CrossEntropyLoss(Block):
         # ====== YOUR CODE: ======
         # Compute softmax function
         softmax = torch.softmax(x, dim=-1)
-
-        # Convert label tensor to one-hot encoding
-        y_onehot = torch.zeros_like(softmax)
-        y_onehot.scatter_(1, y.unsqueeze(1), 1)
-
+        y_onehot = torch.nn.functional.one_hot(y, num_classes=softmax.shape[1])
         # Compute gradient of cross-entropy loss
-        grad = softmax - y_onehot
+        grad = (softmax - y_onehot)/N
         dx = grad * dout
         # ========================
 
@@ -341,9 +337,11 @@ class Sequential(Block):
         # TODO: Implement the forward pass by passing each block's output
         # as the input of the next.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        f_x = x.clone()
+        for block in self.blocks:
+            f_x = block.forward(f_x)
         # ========================
-
+        out = f_x
         return out
 
     def backward(self, dout):
@@ -353,9 +351,11 @@ class Sequential(Block):
         # Each block's input gradient should be the previous block's output
         # gradient. Behold the backpropagation algorithm in action!
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        local_grad = dout
+        for block in reversed(self.blocks):
+            local_grad = block.backward(local_grad)
         # ========================
-
+        din = local_grad
         return din
 
     def params(self):
@@ -363,7 +363,7 @@ class Sequential(Block):
 
         # TODO: Return the parameter tuples from all blocks.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+
         # ========================
 
         return params
