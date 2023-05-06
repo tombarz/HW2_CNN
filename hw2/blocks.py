@@ -11,6 +11,7 @@ class Block(abc.ABC):
         # Store intermediate values needed to compute gradients in this hash
         self.grad_cache = {}
         self.training_mode = True
+        # NOTE
 
     def __call__(self, *args, **kwargs):
         return self.forward(*args, **kwargs)
