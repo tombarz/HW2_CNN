@@ -39,7 +39,7 @@ def part2_dropout_hp():
     # TODO: Tweak the hyperparameters to get the model to overfit without
     # dropout.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    wstd, lr = 1, 1e-5
     # ========================
     return dict(wstd=wstd, lr=lr)
 
