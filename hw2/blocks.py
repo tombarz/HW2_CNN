@@ -340,7 +340,7 @@ class Sequential(Block):
         # ====== YOUR CODE: ======
         f_x = x.clone()
         for block in self.blocks:
-            f_x = block.forward(f_x)
+            f_x = block.forward(f_x, **kw)
         # ========================
         out = f_x
         return out
@@ -365,7 +365,7 @@ class Sequential(Block):
         # TODO: Return the parameter tuples from all blocks.
         # ====== YOUR CODE: ======
         for block in self.blocks:
-            params.append(block.params())
+            params += block.params()
         # ========================
 
         return params
