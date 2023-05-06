@@ -188,7 +188,13 @@ class BlocksTrainer(Trainer):
         # - Optimize params
         # - Calculate number of correct predictions
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        # foward
+
+        
+        loss_fn.backward(model(X),y)
+
+
+
         # ========================
 
         return BatchResult(loss, num_correct)
