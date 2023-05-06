@@ -364,7 +364,8 @@ class Sequential(Block):
 
         # TODO: Return the parameter tuples from all blocks.
         # ====== YOUR CODE: ======
-
+        for block in self.blocks:
+            params.append(block.params())
         # ========================
 
         return params
