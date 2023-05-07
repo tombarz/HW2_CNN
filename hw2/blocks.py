@@ -306,7 +306,7 @@ class Dropout(Block):
         # ====== YOUR CODE: ======
         if self.training_mode:
             # Generate mask
-            mask = torch.ones_like(x) * self.p
+            mask = torch.ones_like(x) * (1-self.p)
             mask = torch.bernoulli(mask)
             # Apply mask
             out = x * mask
