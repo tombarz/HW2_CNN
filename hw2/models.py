@@ -102,7 +102,12 @@ class ConvClassifier(nn.Module):
         # Use only dimension-preserving 3x3 convolutions. Apply 2x2 Max
         # Pooling to reduce dimensions.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        for i in range(len(self.filters)):
+            layers.append(nn.Conv2d(in_channels, self.filters[i], 3, padding=1)) #preserve dimensions with padding
+            layers.append(nn.ReLU())
+            in_channels = self.filters[i]
+            if (i + 1) % self.pool_every == 0: #pool every P layers
+                layers.append(nn.MaxPool2d(2))
 
         # ========================
         seq = nn.Sequential(*layers)
@@ -117,7 +122,21 @@ class ConvClassifier(nn.Module):
         # You'll need to calculate the number of features first.
         # The last Linear layer should have an output dimension of out_classes.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+
+        #calculate number of features:
+        num_pools = len(self.filters) // self.pool_every
+        h_last_conv = in_h // (2 ** num_pools)
+        w_last_conv = in_w // (2 ** num_pools)
+        num_features = self.filters[-1] * h_last_conv * w_last_conv
+
+        #add layers:
+        layers.append(nn.Linear(num_features, self.hidden_dims[0]))
+        for i in range(len(self.hidden_dims) - 1):
+            layers.append(nn.ReLU())
+            layers.append(nn.Linear(self.hidden_dims[i], self.hidden_dims[i + 1]))
+        layers.append(nn.ReLU())
+        layers.append(nn.Linear(self.hidden_dims[-1], self.out_classes)) #last layer
+
         # ========================
         seq = nn.Sequential(*layers)
         return seq
@@ -127,7 +146,16 @@ class ConvClassifier(nn.Module):
         # Extract features from the input, run the classifier on them and
         # return class scores.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+
+        conv_output = self.feature_extractor(x)
+        #TODO remove print
+        #print(conv_output.shape)
+        #TODO remove print
+        conv_output = conv_output.view(conv_output.size(0), -1) #flatten
+        out = self.classifier(conv_output)
+
+
+
         # ========================
         return out
 
