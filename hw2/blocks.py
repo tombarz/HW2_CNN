@@ -76,7 +76,7 @@ class Linear(Block):
         # TODO: Create the weight matrix (w) and bias vector (b).
 
         # ====== YOUR CODE: ======
-        self.w = torch.randn(out_features, in_features)/torch.sqrt(2/in_features)
+        self.w = torch.randn(out_features, in_features) * wstd
         self.b = torch.zeros(out_features)
         # ========================
 

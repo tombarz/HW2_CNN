@@ -39,14 +39,16 @@ class MLP(Block):
                 blocks.append(ReLU())
             else:
                 blocks.append(Sigmoid())
-            blocks.append(Dropout(dropout))
+            if dropout != 0:
+                blocks.append(Dropout(dropout))
             blocks.append(Linear(hidden_features[i], hidden_features[i + 1]))
         # ========================
         if activation == 'relu':
             blocks.append(ReLU())
         else:
             blocks.append(Sigmoid())
-        blocks.append(Dropout(dropout))
+        if dropout != 0:
+            blocks.append(Dropout(dropout))
         blocks.append(Linear(hidden_features[-1], num_classes))
         self.sequence = Sequential(*blocks)
 
