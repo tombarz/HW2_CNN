@@ -72,6 +72,7 @@ class Trainer(abc.ABC):
             # - Optional: Implement early stopping. This is a very useful and
             #   simple regularization technique that is highly recommended.
             # ====== YOUR CODE: ======
+            #implement with early stopping
             epoch_train_losses, epoch_train_accuracy = self.train_epoch(dl_train)
             epoch_test_losses, epoch_test_accuracy = self.test_epoch(dl_test)
 
@@ -82,6 +83,34 @@ class Trainer(abc.ABC):
             test_acc.append(epoch_test_accuracy)
 
             actual_num_epochs += 1
+
+            #stats for early stopping and checkpoints
+            if early_stopping is not None or checkpoints is not None:
+                if best_acc is None:
+                    best_acc = epoch_test_accuracy
+                elif epoch_test_accuracy > best_acc:
+                    best_acc = epoch_test_accuracy
+                    epochs_without_improvement = 0
+                else:
+                    epochs_without_improvement += 1
+
+            # checkpoints
+            if checkpoints is not None:
+                if epoch_test_accuracy > best_acc:
+                    self._print(f'Checkpointing model after {epoch+1} epochs', verbose)
+                    #save model as best model
+                    torch.save(self.model.state_dict(), f'{checkpoints}_best.pt')
+
+
+            #early stopping
+            if early_stopping is not None:
+                if epochs_without_improvement >= early_stopping:
+                    self._print(f'Early stopping after {epoch+1} epochs', verbose)
+                    #if checkpoints save model as last model
+                    if checkpoints is not None:
+                        torch.save(self.model.state_dict(), f'{checkpoints}_last.pt')
+                    break
+
             # ========================
 
         return FitResult(actual_num_epochs,
@@ -248,10 +277,21 @@ class TorchTrainer(Trainer):
         # - Optimize params
         # - Calculate number of correct predictions
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        # - Forward pass
+        model_output = self.model(X)
+        loss = self.loss_fn(model_output, y)
+        # - Backward pass
+        self.optimizer.zero_grad()
+        loss.backward()
+        # - Optimize params
+        self.optimizer.step()
+        # - Calculate number of correct predictions
+        model_output=torch.argmax(model_output, dim=-1)
+        num_correct = torch.sum(model_output == y)
+
         # ========================
 
-        return BatchResult(loss, num_correct)
+        return BatchResult(loss.item(), num_correct.item())
 
     def test_batch(self, batch) -> BatchResult:
         X, y = batch
@@ -264,7 +304,13 @@ class TorchTrainer(Trainer):
             # - Forward pass
             # - Calculate number of correct predictions
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            # - Forward pass
+            model_output = self.model(X)
+            loss = self.loss_fn(model_output, y)
+            # - Calculate number of correct predictions
+            model_output = torch.argmax(model_output, dim=-1)
+            num_correct = torch.sum(model_output == y)
+
             # ========================
 
-        return BatchResult(loss, num_correct)
+        return BatchResult(loss.item(), num_correct.item())
