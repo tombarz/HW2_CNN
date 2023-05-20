@@ -39,35 +39,48 @@ def part2_dropout_hp():
     # TODO: Tweak the hyperparameters to get the model to overfit without
     # dropout.
     # ====== YOUR CODE: ======
-    wstd, lr = 1, 1e-5
+    wstd, lr = 0.1, 3e-4
     # ========================
     return dict(wstd=wstd, lr=lr)
 
 
 part2_q1 = r"""
 **Your answer:**
+1. We would expect the training process of models with dropout to generalize better with the training data, 
+resulting in a more generalized model with a lower expected overfitting to the training data. 
+We would anticipate a slower convergence rate on the training set but better results in terms of test accuracy and loss.
 
+For our graphs, we can clearly observe that despite the introduction of dropout making the training process slower, 
+we achieve better results in terms of test loss and accuracy, as expected.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+However, on the training set, we encounter some unexpected outcomes. 
+The dropout model shows an overall improvement in train accuracy compared to the non-dropout model. 
+We notice that in general, we experience some unstable training patterns across all models, 
+which can be attributed to a high learning rate.
 
+It's possible that the introduction of dropout effectively "dampens" the learning rate, resulting in a more stable training process.
+It's worth noting that if we were to select a better learning rate, specifically a smaller one, 
+we might obtain better results in terms of train accuracy for the non-dropout model. 
+This improvement would be due to preventing overfitting, which may not carry over to the test segment.
+
+2 . A very high dropout rate effectively reduces the expressivity of the model,
+impairing its ability to accurately capture the complexity of the training data distribution.
+We would anticipate observing a significant decrease in the convergence rate during training 
+and a decline in test accuracy when using a high dropout rate.
+
+We can clearly observe this effect in our results. 
+The model with a high dropout rate exhibits difficulties in converging on the training segment, 
+leading to a degenerate learning curve and inferior performance in terms of test loss and accuracy compared to its low dropout counterpart.
 """
 
 part2_q2 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+It's possible that the test accuracy and test loss will both  increase for a few epochs, 
+because besides measuring the number of mistakes the cross entropy loss also measures the magnitude of the mistake 
+but in contrast the accuracy only measures the number of mistakes.
+that's why there can be a few epochs where the number of mistakes is decreasing but the magnitude of the mistakes is
+increasing and therefore the loss is increasing as well. 
 """
 # ==============
 
